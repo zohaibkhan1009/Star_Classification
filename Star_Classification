@@ -1,0 +1,255 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import os
+import pylab as pl
+import matplotlib.pyplot as plt
+
+os.chdir("C:\\Users\\zohaib khan\\OneDrive\\Desktop\\USE ME\\dump\\zk")
+
+data = pd.read_csv("star_classification.csv")
+
+data.head()
+
+pd.set_option('display.max_columns', None)
+
+data.head()
+
+#Check for missing values
+data.isnull().sum()
+
+from sklearn.impute import SimpleImputer
+
+imputer=SimpleImputer(missing_values=np.nan,strategy='most_frequent',fill_value=None)
+
+data["Arrival Delay in Minutes"].fillna("mean", inplace=True)
+
+#Check for duplicate values
+data[data.duplicated()]
+
+#remove duplicates permanent
+data.drop_duplicates(inplace=True)
+
+
+
+from sklearn import preprocessing
+for col in data.select_dtypes(include=['object']).columns:
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(data[col].unique())
+    data[col] = label_encoder.transform(data[col])
+    print(f'{col} : {data[col].unique()}')
+
+data.info()
+
+#Label Encoding
+from sklearn.preprocessing import LabelEncoder
+
+encoder = LabelEncoder()
+
+encoder.fit(data["Arrival Delay in Minutes"])
+
+data["Arrival Delay in Minutes"] = encoder.transform(data["Arrival Delay in Minutes"])
+
+data["Arrival Delay in Minutes"].unique()
+
+data.head()
+
+
+# Import necessary library
+from sklearn.preprocessing import LabelEncoder
+import pandas as pd
+
+# Convert all values to numeric, setting errors='coerce' will replace non-numeric values with NaN
+data["Arrival Delay in Minutes"] = pd.to_numeric(data["Arrival Delay in Minutes"], errors='coerce')
+
+# Fill NaN values (you can also choose to drop them)
+data["Arrival Delay in Minutes"].fillna(-1, inplace=True)  # Using -1 as a placeholder for NaN
+
+# Convert the column to integer type (optional, based on your needs)
+data["Arrival Delay in Minutes"] = data["Arrival Delay in Minutes"].astype(int)
+
+# Label encoding
+encoder = LabelEncoder()
+encoder.fit(data["Arrival Delay in Minutes"])
+data["Arrival Delay in Minutes"] = encoder.transform(data["Arrival Delay in Minutes"])
+
+# Display unique values and first few rows
+print(data["Arrival Delay in Minutes"].unique())
+data.head()
+
+data.info()
+
+
+from autoviz.AutoViz_Class import AutoViz_Class 
+AV = AutoViz_Class()
+import matplotlib.pyplot as plt
+%matplotlib INLINE
+filename = 'star_classification.csv'
+sep =","
+dft = AV.AutoViz(
+    filename  
+)
+
+
+
+def class_distribution(data, column_name='Class'):
+    # Display total counts and percentage for each class
+    distribution = data[column_name].value_counts()
+    percentage = data[column_name].value_counts(normalize=True) * 100
+    
+    print(f"Class distribution for '{column_name}':")
+    print(distribution)
+    print("\nPercentage distribution:")
+    print(percentage)
+
+# Call the function to display the distribution for the 'Resigned' column
+class_distribution(data, 'Class')
+
+def pintu (data,age):
+ Q1 = data[age].quantile(0.25)
+ Q3 = data[age].quantile(0.75)
+ IQR = Q3 - Q1
+ data= data.loc[~((data[age] < (Q1 - 1.5 * IQR)) | (data[age] > (Q3 + 1.5 * IQR))),]
+ return data
+
+data.boxplot(column=["Fiber_ID"])
+
+data = pintu(data,"Fiber_ID")
+
+data.info()
+
+
+
+#Segregrating dataset into X and y
+
+X = data.drop("Class", axis = 1)
+
+y = data["Class"]
+
+X.head()
+
+y.head()
+
+#Splitting the dataset into testing and training
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+
+
+#Scale the dataset
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+
+
+# machine learning libraries
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+
+# initialize classifiers
+log_model = LogisticRegression()
+rf_model = RandomForestClassifier()
+svm_model = SVC()
+knn_model = KNeighborsClassifier()
+gnb_model = GaussianNB()
+
+# logistic regression model fitting
+log_model.fit(X_train, y_train)
+
+# random forest classifier model fitting
+rf_model.fit(X_train, y_train)
+
+# k nearest neighbour model fitting
+knn_model.fit(X_train, y_train)
+
+# gaussian naive bayes model fitting
+gnb_model.fit(X_train, y_train)
+
+
+
+# model testing libraries
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+
+# logistic regression model testing
+y_pred_log = log_model.predict(X_test)
+print("Logistic Regression")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_log)}")
+print(f"Precision: {precision_score(y_test, y_pred_log, average='weighted')}")
+print(f"Recall: {recall_score(y_test, y_pred_log, average='weighted')}")
+print(f"F1 score: {f1_score(y_test, y_pred_log, average='weighted')}")
+
+
+# random forest classifier model testing
+y_pred_rf = rf_model.predict(X_test)
+print("Random Forest Classifier")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_rf)}")
+print(f"Precision: {precision_score(y_test, y_pred_rf, average='weighted')}")
+print(f"Recall: {recall_score(y_test, y_pred_rf, average='weighted')}")
+print(f"F1 score: {f1_score(y_test, y_pred_rf, average='weighted')}")
+
+
+# support vector classifier model testing
+y_pred_svm = svm_model.predict(X_test)
+print("Support Vector Classifier")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_svm)}")
+print(f"Precision: {precision_score(y_test, y_pred_svm, average='weighted')}")
+print(f"Recall: {recall_score(y_test, y_pred_svm, average='weighted')}")
+print(f"F1 score: {f1_score(y_test, y_pred_svm, average='weighted')}")
+
+
+# k nearest neighbour model testing
+y_pred_knn = knn_model.predict(X_test)
+print("K Nearest Neighbours")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_knn)}")
+print(f"Precision: {precision_score(y_test, y_pred_knn, average='weighted')}")
+print(f"Recall: {recall_score(y_test, y_pred_knn, average='weighted')}")
+print(f"F1 score: {f1_score(y_test, y_pred_knn, average='weighted')}")
+
+
+# gaussian naive bayes model testing
+y_pred_gnb = gnb_model.predict(X_test)
+print("Gaussian Naive Bayes")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_gnb)}")
+print(f"Precision: {precision_score(y_test, y_pred_gnb, average='weighted')}")
+print(f"Recall: {recall_score(y_test, y_pred_gnb, average='weighted')}")
+print(f"F1 score: {f1_score(y_test, y_pred_gnb, average='weighted')}")
+
+
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+
+
+
+
+# Define the models
+models = {
+    "Logistic Regression": LogisticRegression(),
+    "Decision Tree": DecisionTreeClassifier(),
+    "Support Vector Classifier": SVC(),
+    "Gradient Boosting Classifier": GradientBoostingClassifier(),
+    "K-Nearest Neighbors": KNeighborsClassifier(),
+    "MLP Classifier": MLPClassifier()
+}
+
+
+# Train and evaluate each model
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    score = model.score(X_test, y_test)
+    print(f"{name} Accuracy: {score * 100:.2f}%")
+
+#Random Forest perform the best
